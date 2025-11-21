@@ -190,7 +190,7 @@ LIMIT 10;
 
 
 /* =====================================================
- 3. FULL OUTER JOIN (SIMULATED IN MySQL)
+ 3. FULL OUTER JOIN 
    MySQL has no native FULL OUTER JOIN.
    Common pattern: LEFT JOIN + RIGHT JOIN + UNION
 ===================================================== */
