@@ -1,13 +1,14 @@
 /* PRACTICE
 ========================================================
  Day 2 – Data Query Language (DQL) + Filtering
- Target DB: MySQL with sakila sample DB installed
- File: session2_sakila_practice.sql
+ Target DB : MySQL with sakila sample DB installed
 ========================================================
- HOW TO USE:
- 1. Install sakila DB.
- 2. USE sakila;
- 3. Run each section step-by-step for practice.
+ Reminders:
+ - SELECT retrieves data; LIMIT keeps results manageable.
+ - WHERE narrows down rows early, using conditions.
+ - LIKE, BETWEEN, IN, NULL checks help shape filters.
+ - GROUP BY organizes data into buckets; HAVING filters them.
+ - ORDER BY sorts results in meaningful ways.
 ========================================================
 */
 
@@ -15,33 +16,35 @@ USE sakila;
 
 /* -----------------------------------------------------
  1. BASIC DATA RETRIEVAL & SELECTION
+   (Picking which columns and rows you want to see)
 ------------------------------------------------------ */
 
--- 1.1 SELECT all columns from a table
+-- SELECT * shows everything, useful for exploration
 SELECT * FROM actor;
 
--- 1.2 SELECT specific columns
+-- Selecting specific columns keeps queries clean and focused
 SELECT first_name, last_name FROM actor;
 
--- 1.3 Using DISTINCT to get unique values
+-- DISTINCT helps find unique values in a column
 SELECT DISTINCT rating FROM film;
 
--- 1.4 LIMIT the number of rows returned
+-- LIMIT controls how many rows are returned
 SELECT * FROM customer LIMIT 5;
 
--- Show 10 films only
+-- Quick preview of selected film details
 SELECT film_id, title, rental_rate FROM film LIMIT 10;
 
 
 /* -----------------------------------------------------
  2. FILTERING & OPERATORS (WHERE clause)
+   (WHERE zeroes in on the rows that matter)
 ------------------------------------------------------ */
 
--- 2.1 SELECT with WHERE condition
+-- Simple equality check
 SELECT * FROM customer
 WHERE active = 1;
 
--- 2.2 Logical AND + OR
+-- Combining conditions with AND / OR
 SELECT * FROM film
 WHERE rental_rate > 3.0
   AND rating = 'PG';
@@ -50,33 +53,32 @@ SELECT * FROM film
 WHERE rating = 'G'
    OR rating = 'PG';
 
--- 2.3 NOT operator
+-- NOT helps exclude conditions
 SELECT * FROM customer
 WHERE NOT active = 1;
 
--- 2.4 LIKE pattern matching
--- starts with A
+-- LIKE matches patterns (%, _)
+-- Starts with A
 SELECT * FROM actor
 WHERE first_name LIKE 'A%';
 
--- ends with N
+-- Ends with N
 SELECT * FROM actor
 WHERE first_name LIKE '%N';
 
--- contains 'ER'
+-- Contains “ER”
 SELECT * FROM actor
 WHERE first_name LIKE '%ER%';
 
--- single-character wildcard '_'
--- second letter = 'A'
+-- _ matches a single character
 SELECT * FROM actor
 WHERE first_name LIKE '_A%';
 
--- 2.5 BETWEEN (range filtering)
+-- BETWEEN checks numeric ranges
 SELECT * FROM film
 WHERE rental_rate BETWEEN 1.0 AND 3.0;
 
--- 2.6 NULL value filtering
+-- NULL and NOT NULL help with missing or optional data
 SELECT * FROM address
 WHERE address2 IS NULL;
 
@@ -86,39 +88,37 @@ WHERE address2 IS NOT NULL;
 
 /* -----------------------------------------------------
  3. AGGREGATION & GROUPING
+   (Summaries and grouped insights)
 ------------------------------------------------------ */
 
--- 3.1 Aggregate functions
+-- Aggregate helpers: COUNT, SUM, AVG, etc.
 SELECT COUNT(*) AS total_films FROM film;
 
 SELECT SUM(amount) AS total_payments
 FROM payment;
 
--- 3.2 GROUP BY
+-- GROUP BY organizes rows into categories
 SELECT customer_id, COUNT(payment_id) AS total_payments
 FROM payment
 GROUP BY customer_id;
 
--- 3.3 HAVING (filters AFTER grouping)
--- customers who paid more than 100 total
+-- HAVING filters groups after aggregation
 SELECT customer_id, SUM(amount) AS total_spent
 FROM payment
 GROUP BY customer_id
 HAVING SUM(amount) > 100;
 
--- Another: count of rentals per customer > 20
+-- Rentals per customer, filtering by count
 SELECT customer_id, COUNT(rental_id) AS total_rentals
 FROM rental
 GROUP BY customer_id
 HAVING total_rentals > 20;
 
--- 3.4 WHERE vs HAVING DEMO
-
--- WHERE filters BEFORE grouping:
+-- WHERE first → filters raw rows
 SELECT * FROM payment
 WHERE amount > 5;
 
--- HAVING filters AFTER aggregation:
+-- HAVING later → filters grouped results
 SELECT customer_id, SUM(amount) AS total_amount
 FROM payment
 GROUP BY customer_id
@@ -127,25 +127,25 @@ HAVING SUM(amount) > 20;
 
 /* -----------------------------------------------------
  4. SORTING & SQL EXECUTION ORDER
+   (ORDER BY shapes the final presentation of data)
 ------------------------------------------------------ */
 
--- 4.1 ORDER BY (ASC = default)
+-- ASC by default
 SELECT film_id, title, rental_rate
 FROM film
 ORDER BY rental_rate ASC;
 
--- 4.2 ORDER BY DESC
+-- DESC reverses the order
 SELECT film_id, title, rental_rate
 FROM film
 ORDER BY rental_rate DESC;
 
--- 4.3 ORDER BY multiple columns
--- Sort by rating, then sort alphabetically by title
+-- Sorting by multiple fields is common
 SELECT film_id, title, rating
 FROM film
 ORDER BY rating ASC, title ASC;
 
--- 4.4 ORDER BY + LIMIT
+-- ORDER BY often pairs with LIMIT for top-N results
 SELECT title, rental_rate
 FROM film
 ORDER BY rental_rate DESC
@@ -153,9 +153,9 @@ LIMIT 5;
 
 
 /* -----------------------------------------------------
- 4.5 SQL ORDER OF EXECUTION (COMMENT ONLY)
+ 4.5 SQL ORDER OF EXECUTION (Reference Only)
 ---------------------------------------------------------
- The true SQL processing order is:
+ SQL actually processes queries in this order:
 
    1. FROM
    2. JOIN
@@ -166,14 +166,17 @@ LIMIT 5;
    7. ORDER BY
    8. LIMIT
 
- This explains why:
- - WHERE cannot use SUM()/COUNT() (aggregation not done yet)
- - HAVING can use SUM()/COUNT()
- - ORDER BY can use SELECT aliases
+ Reminders:
+ - WHERE comes before GROUP BY → no aggregates allowed.
+ - HAVING comes after GROUP BY → aggregates allowed.
+ - ORDER BY can use SELECT aliases.
 --------------------------------------------------------- */
 
 
 /* -----------------------------------------------------
  END OF DAY 2 SCRIPT
-
+ Take Away:
+ - Filter first (WHERE), summarize later (GROUP BY/HAVING).
+ - Use DISTINCT for unique values and LIMIT for control.
+ - Sorting shapes the final answer, not the filtering.
 ------------------------------------------------------ */
