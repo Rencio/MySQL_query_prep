@@ -9,7 +9,6 @@
    often makes the biggest difference.  
  - JOINs are usually more efficient than subqueries.  
  - Functions on indexed columns can disable indexes.  
- - EXPLAIN is your window into how MySQL thinks.  
 ========================================================
 */
 
@@ -55,7 +54,6 @@ WHERE rating = 'PG';
 ------------------------------------------------------ */
 
 -- Misuse example: HAVING used as a row filter
--- (MySQL must group first before filtering)
 SELECT 
     customer_id,
     SUM(amount) AS total_amount
@@ -90,7 +88,6 @@ ORDER BY customer_id
 LIMIT 10;
 
 -- Large OFFSET is expensive:
--- MySQL still scans the skipped rows internally
 SELECT 
     customer_id,
     first_name,
@@ -113,10 +110,9 @@ LIMIT 10;
 
 /* -----------------------------------------------------
  4. JOIN vs Subqueries
-   (JOINs often give MySQL more room to optimize)
 ------------------------------------------------------ */
 
--- Subquery version: works, but MySQL has less flexibility
+-- Subquery version
 SELECT 
     customer_id,
     first_name,
@@ -141,11 +137,9 @@ WHERE p.amount > 10;
 
 /* -----------------------------------------------------
  5. Avoid Functions on Indexed Columns
-   (They prevent MySQL from using the index)
 ------------------------------------------------------ */
 
--- YEAR(rental_date) forces MySQL to evaluate YEAR() 
--- for every row — disabling index use
+
 SELECT 
     rental_id,
     rental_date
@@ -205,7 +199,7 @@ LIMIT 10;
  7. Maintenance Tools: ANALYZE & OPTIMIZE
 ------------------------------------------------------ */
 
--- ANALYZE updates index statistics, helping MySQL
+-- ANALYZE updates index statistics,
 -- choose better execution plans
 ANALYZE TABLE payment;
 ANALYZE TABLE rental;
